@@ -26,4 +26,48 @@ class ArrFormat
 
         return $arr;
     }
+
+    /**
+     * @param array $list
+     * @param string $leafKey
+     * @param string $pidKey
+     * @param string $subKey
+     * @param string $idKey
+     * @return array
+     */
+    public static function category(
+        array  $list,
+        string $leafKey = '',
+        string $pidKey = 'pid',
+        string $subKey = 'children',
+        string $idKey = 'id'
+    ): array
+    {
+        $data = [];
+        $tree = [];
+
+        foreach ($list as $item) {
+            if ($leafKey) {
+                $item[$leafKey] = true;
+            }
+            $data[$item[$idKey]] = $item;
+        }
+
+        foreach ($data as $item) {
+            if (isset($data[$item[$pidKey]])) {
+                if ($leafKey) {
+                    $data[$item[$pidKey]][$leafKey] = false;
+                }
+                if (!isset($data[$item[$pidKey]][$subKey])) {
+                    $data[$item[$pidKey]][$subKey] = [];
+                }
+
+                $data[$item[$pidKey]][$subKey][] = &$data[$item[$idKey]];
+            } else {
+                $tree[] = &$data[$item[$idKey]];
+            }
+        }
+
+        return $tree;
+    }
 }
